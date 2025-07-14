@@ -24,6 +24,7 @@ model\TaskApplication.class
 controller\TaskServlet.class
 controller\ViewProfileServlet.class
 dao\DashboardDAO.class
+model\Payment.class
 dao\DBContext.class
 controller\EditTaskServlet.class
 controller\AdminDashboardServlet.class
