@@ -89,7 +89,7 @@
             <span>${workerAddress}</span>
         </div>
 
-        <a href="${pageContext.request.contextPath}/jobPoster" class="btn btn-primary">
+        <a href="${pageContext.request.contextPath}/loadJobPoster" class="btn btn-primary">
             <i class="fas fa-arrow-left"></i> Quay lại
         </a>
     </div>

@@ -43,7 +43,7 @@
     <%-- Sidebar --%>
     <jsp:include page="admin_include/admin-sidebar.jsp" />
 
-    <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content-wrapper" class="d-flex flex-column" style="margin-left: 240px;">
 
         <%-- Main Content --%>
         <div id="content">
@@ -71,6 +71,7 @@
                                     <th>Email</th>
                                     <th>Vai trò</th>
                                     <th>Trạng thái</th>
+                                    <th>Xác minh OTP</th>
                                     <th>Hành động</th>
                                 </tr>
                                 </thead>
@@ -88,6 +89,16 @@
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="badge bg-success">Hoạt động</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${user.verified}">
+                                                    <span class="badge bg-success">Đã xác minh</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge bg-warning text-dark">Chưa xác minh</span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>

@@ -69,7 +69,7 @@
 
             <jsp:include page="admin_include/admin-sidebar.jsp" />
 
-            <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content-wrapper" class="d-flex flex-column" style="margin-left: 240px;">
 
                 <div id="content">
 
@@ -82,7 +82,7 @@
                         <div class="card shadow mb-4">
                             <div class="card-body">
 
-                                <form action="${pageContext.request.contextPath}/AdminManageTaskServlet" method="post" autocomplete="off">
+                                <form action="${pageContext.request.contextPath}/admin/AdminManageTaskServlet" method="post" autocomplete="off">
                                     <input type="hidden" name="action" value="update" />
                                     <input type="hidden" name="taskId" value="${task.taskId}" />
 
@@ -143,7 +143,7 @@
                                         <i class="fas fa-save"></i> Lưu thay đổi
                                     </button>
 
-                                    <a href="${pageContext.request.contextPath}/AdminManageTaskServlet?action=list" class="btn btn-secondary">
+                                    <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet?action=list" class="btn btn-secondary">
                                         <i class="fas fa-arrow-left"></i> Quay lại
                                     </a>
                                 </form>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -74,9 +74,6 @@
                                     </a>
                                     <a href="${pageContext.request.contextPath}/tasks" class="nav-link">
                                         <i class="fas fa-tasks"></i> Danh sách công việc
-                                    </a>
-                                    <a href="help.jsp" class="nav-link">
-                                        <i class="fas fa-question-circle"></i> Trợ Giúp
                                     </a>
                                 </nav>
                                 <div class="header-actions">

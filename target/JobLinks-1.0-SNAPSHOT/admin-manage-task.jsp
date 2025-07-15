@@ -45,7 +45,7 @@
             <jsp:include page="admin_include/admin-sidebar.jsp" />
 
             <!-- Content Wrapper -->
-            <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content-wrapper" class="d-flex flex-column" style="margin-left: 240px;">
 
                 <!-- Main Content -->
                 <div id="content">
@@ -97,13 +97,13 @@
                                                     </td>
                                                     <td>${task.createdAt}</td>
                                                     <td>
-                                                        <a href="${pageContext.request.contextPath}/AdminManageTaskServlet?action=view&taskId=${task.taskId}" class="btn btn-sm btn-info" title="Xem chi tiết">
+                                                        <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet?action=view&taskId=${task.taskId}" class="btn btn-sm btn-info" title="Xem chi tiết">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
-                                                        <a href="${pageContext.request.contextPath}/AdminManageTaskServlet?action=edit&taskId=${task.taskId}" class="btn btn-sm btn-primary" title="Chỉnh sửa">
+                                                        <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet?action=edit&taskId=${task.taskId}" class="btn btn-sm btn-primary" title="Chỉnh sửa">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
-                                                        <a href="${pageContext.request.contextPath}/AdminManageTaskServlet?action=delete&taskId=${task.taskId}" class="btn btn-sm btn-danger" title="Xóa"
+                                                        <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet?action=delete&taskId=${task.taskId}" class="btn btn-sm btn-danger" title="Xóa"
                                                            onclick="return confirm('Bạn chắc chắn muốn xóa công việc này?');">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </a>

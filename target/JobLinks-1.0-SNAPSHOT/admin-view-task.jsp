@@ -75,13 +75,14 @@
 
         <div id="wrapper">
 
-            <jsp:include page="admin_include/admin-sidebar.jsp" />
+            <jsp:include page="/admin_include/admin-sidebar.jsp" />
 
-            <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content-wrapper" class="d-flex flex-column" style="margin-left: 240px;">
+
 
                 <div id="content">
 
-                    <jsp:include page="admin_include/admin-header.jsp" />
+                    <jsp:include page="/admin_include/admin-header.jsp" />
 
                     <div class="container-fluid">
 
@@ -126,7 +127,7 @@
                                     <dd class="col-sm-9">${task.createdAt}</dd>
                                 </dl>
 
-                                <a href="${pageContext.request.contextPath}/AdminManageTaskServlet?action=list" class="btn btn-secondary mt-3">
+                                <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet?action=list" class="btn btn-secondary mt-3">
                                     <i class="fas fa-arrow-left"></i> Quay lại danh sách
                                 </a>
 

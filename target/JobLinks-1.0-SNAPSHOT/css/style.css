@@ -246,7 +246,6 @@ body {
 .hero-actions {
     display: flex;
     gap: 15px;
-    margin-top: 2rem;
 }
 
 .hero-image {

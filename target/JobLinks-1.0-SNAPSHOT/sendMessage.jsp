@@ -9,7 +9,7 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .chat-container { width: 900px; height: 600px; background-color: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
+        .chat-container { width: 900px; height: 600px; background-color: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; overflow: hidden; margin-top: 160px;}
         .sidebar { width: 300px; background-color: #f9f9f9; border-right: 1px solid #eee; display: flex; flex-direction: column; }
         .sidebar-header { background-color: #007bff; color: white; padding: 16px; font-size: 18px; font-weight: bold; }
         .conversation-list { flex: 1; overflow-y: auto; padding: 10px; }

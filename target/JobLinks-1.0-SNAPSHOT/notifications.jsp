@@ -12,7 +12,7 @@
         }
         .shadow {
             display: block;
-            margin-top: 120px;
+            margin-top: 170px;
         }
         .action-btn {
             margin-right: 5px;
@@ -23,7 +23,7 @@
 <body>
 <div class="container">
 
-    <%@include file="header.jsp" %>
+    <%@include file="header-layout.jsp" %>
 
     <div class="card shadow">
         <div class="card-header bg-primary text-white">

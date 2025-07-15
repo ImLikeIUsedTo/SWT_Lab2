@@ -28,7 +28,7 @@
             <%-- Sidebar --%>
             <jsp:include page="admin_include/admin-sidebar.jsp" />
 
-            <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content-wrapper" class="d-flex flex-column" style="margin-left: 240px;">
                 <div id="content">
                     <%-- Header --%>
                     <jsp:include page="admin_include/admin-header.jsp" />
@@ -131,6 +131,7 @@
 
 
                         <!-- Recent Tasks -->
+
                         <!-- Recent Tasks -->
                         <div class="card shadow mb-4">
                             <div class="card-header py-3">
@@ -183,16 +184,50 @@
                                 <div class="card shadow">
                                     <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Chức năng nhanh</h6></div>
                                     <div class="card-body text-center">
-                                        <a href="${pageContext.request.contextPath}/admin/users" class="btn btn-primary m-2">
+                                        <a href="${pageContext.request.contextPath}/admin/AdminManageUserServlet" class="btn btn-primary m-2">
                                             <i class="fas fa-users"></i> Quản lý người dùng
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/admin/tasks" class="btn btn-success m-2">
+                                        <a href="${pageContext.request.contextPath}/admin/AdminManageTaskServlet" class="btn btn-success m-2">
                                             <i class="fas fa-tasks"></i> Quản lý công việc
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/admin/feedback" class="btn btn-warning m-2">
+                                        <a href="${pageContext.request.contextPath}/AdminFeedbackServlet" class="btn btn-warning m-2">
                                             <i class="fas fa-comments"></i> Xem phản hồi
                                         </a>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Logs -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Nhật ký hệ thống gần đây</h6>
+                                <a href="${pageContext.request.contextPath}/view-logs" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Thời gian</th>
+                                                <th>Email người dùng</th>
+                                                <th>Hành động</th>
+                                                <th>Đối tượng</th>
+                                                <th>Mô tả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="log" items="${recentLogs}">
+                                                <tr>
+                                                    <td>${log.timestamp}</td>
+                                                    <td>${log.email}</td>
+                                                    <td>${log.action}</td>
+                                                    <td>${log.target}</td>
+                                                    <td>${log.description}</td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -227,7 +262,7 @@
             console.log("monthlyCountsJson:", '${fn:escapeXml(monthlyCountsJson)}');
             console.log("taskTypeLabelsJson:", '${fn:escapeXml(taskTypeLabelsJson)}');
             console.log("taskTypeDataJson:", '${fn:escapeXml(taskTypeDataJson)}');
-            
+
             // Vẽ biểu đồ đường (line chart)
             new Chart(document.getElementById("earningsAreaChart"), {
                 type: 'line',

@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Công việc</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
             --primary-color: #4e73df;
@@ -27,63 +28,11 @@
             line-height: 1.6;
         }
 
-        .header {
-            background-color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-img { height: 40px; }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-greeting { font-weight: 600; color: var(--dark-color); }
-
-        .menu-link {
-            color: var(--dark-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.3s;
-        }
-
-        .menu-link:hover { color: var(--primary-color); }
-
-        .btn-logout { color: var(--danger-color); }
-
-        .container {
+        .container1 {
             max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
+            margin-top: 160px;
         }
 
         .page-header {
@@ -206,12 +155,10 @@
         }
 
         .status-pending { background-color: #f6c23e; color: white; }
-
         .status-active { background-color: #1cc88a; color: white; }
-
         .status-completed { background-color: #36b9cc; color: white; }
-
         .status-cancelled { background-color: #e74a3b; color: white; }
+        .status-hidden { background-color: #6c757d; color: white; } /* Thêm trạng thái cho task ẩn */
 
         .task-actions {
             display: flex;
@@ -266,36 +213,24 @@
     </style>
 </head>
 <body>
-<header class="header">
-    <div class="header-container">
-        <div class="logo">
-            <img src="${pageContext.request.contextPath}/img/joblink.png" alt="JobLinks" class="logo-img">
-        </div>
-        <div class="user-menu">
-            <c:if test="${not empty sessionScope.user}">
-                <span class="user-greeting">Xin chào, ${sessionScope.user.fullName}</span>
-                <a href="${pageContext.request.contextPath}/profile" class="menu-link">
-                    <i class="fas fa-user"></i> Hồ sơ
-                </a>
-                <a href="${pageContext.request.contextPath}/logout" class="menu-link btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
-                <a href="${pageContext.request.contextPath}/completedTasks" class="menu-link">
-                    <i class="fas fa-check-circle"></i> Xem Task Hoàn Thành
-                </a>
-            </c:if>
-        </div>
-    </div>
-</header>
+<%@include file="jobPosterHeader.jsp" %>
 
-<main class="container">
+<main class="container1">
     <div class="page-header">
         <div>
-            <a href="${pageContext.request.contextPath}/home">Quay lại trang chủ</a>
             <h1 class="page-title">Quản lý Công việc</h1>
         </div>
-        <a href="${pageContext.request.contextPath}/loadJobPoster?view=post" class="btn btn-primary">
+<!--    <a href="${pageContext.request.contextPath}/postTask?view=post" class="btn btn-primary">
             <i class="fas fa-plus"></i> Đăng công việc mới
+        </a>  -->
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jobPostModal">
+            <i class="fas fa-plus"></i> Đăng công việc mới
+        </a>   
+        <a href="${pageContext.request.contextPath}/completedTasks" class="btn btn-secondary">
+            <i class="fas fa-check-circle"></i> Xem Task Hoàn Thành
+        </a>
+        <a href="${pageContext.request.contextPath}/loadHiddenTasks" class="btn btn-secondary" style="margin-left: 10px;">
+            <i class="fas fa-eye-slash"></i> Xem công việc đã ẩn
         </a>
     </div>
 
@@ -304,7 +239,67 @@
             <i class="fas fa-exclamation-circle"></i> ${error}
         </div>
     </c:if>
+            
+    <!-- Modal đăng công việc -->
+    <div class="modal fade" id="jobPostModal" tabindex="-1" aria-labelledby="jobPostModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="${pageContext.request.contextPath}/postTask" method="post">
+            <div class="modal-header">
+              <h5 class="modal-title" id="jobPostModalLabel">Đăng công việc mới</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="title" class="form-label">Tiêu đề</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+              </div>
 
+              <div class="mb-3">
+                <label for="description" class="form-label">Mô tả</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="categoryId" class="form-label">Danh mục</label>
+                <select class="form-select" id="categoryId" name="categoryId" required>
+                  <option value="">Chọn danh mục</option>
+                  <c:forEach var="category" items="${categories}">
+                    <option value="${category.categoryId}">${category.name}</option>
+                  </c:forEach>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="location" class="form-label">Địa điểm</label>
+                <select class="form-select" id="location" name="location" required>
+                  <option value="">Chọn địa điểm</option>
+                  <option value="Hanoi">Hà Nội</option>
+                  <option value="HCMC">Hồ Chí Minh</option>
+                  <option value="Danang">Đà Nẵng</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="scheduledTime" class="form-label">Thời gian dự kiến</label>
+                <input type="datetime-local" class="form-control" id="scheduledTime" name="scheduledTime" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="budget" class="form-label">Ngân sách (VND)</label>
+                <input type="number" class="form-control" id="budget" name="budget" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Đăng việc</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+        
     <!-- Danh sách công việc -->
     <div class="card">
         <div class="card-header">
@@ -329,15 +324,29 @@
                                     <span class="meta-item"><i class="fas fa-map-marker-alt"></i> ${task.location}</span>
                                     <span class="meta-item"><i class="fas fa-clock"></i> ${task.scheduledTime}</span>
                                     <span class="meta-item"><i class="fas fa-money-bill-wave"></i> ${task.budget} VND</span>
-                                    <span class="meta-item"><span class="task-status status-${task.status.toLowerCase()}">${task.status}</span></span>
+                                    <span class="meta-item">
+                                        <span class="task-status status-${task.status.toLowerCase()}">
+                                            ${task.status}
+                                            <c:if test="${task.isHidden == 1}"> (Đã ẩn)</c:if>
+                                        </span>
+                                    </span>
                                 </div>
                                 <div class="task-actions">
-                                    <a href="${pageContext.request.contextPath}/editTask?taskId=${task.taskId}" class="btn btn-secondary">
+                                    <a href="${pageContext.request.contextPath}/loadJobPoster?view=edit&taskId=${task.taskId}&title=${fn:escapeXml(task.title)}" class="btn btn-secondary">
                                         <i class="fas fa-edit"></i> Sửa
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/deleteTask?taskId=${task.taskId}" class="btn btn-danger">
-                                        <i class="fas fa-trash"></i> Xóa
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${task.isHidden == 0}">
+                                            <a href="${pageContext.request.contextPath}/loadJobPoster?view=hide&taskId=${task.taskId}&title=${fn:escapeXml(task.title)}" class="btn btn-danger">
+                                                <i class="fas fa-trash"></i> Ẩn
+                                            </a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/unhideTask?taskId=${task.taskId}" class="btn btn-secondary">
+                                                <i class="fas fa-eye"></i> Hiển thị lại
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
 
                                 <!-- Danh sách ứng tuyển -->
@@ -380,10 +389,53 @@
             </c:choose>
         </div>
     </div>
+    <!-- Danh sách công việc cần xác nhận hoàn thành -->
+<!-- Danh sách công việc cần xác nhận hoàn thành -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-check-circle"></i> Công việc cần xác nhận hoàn thành
+        </div>
+        <div class="card-body">
+            <c:set var="hasPendingTasks" value="false"/>
+            <c:forEach var="task" items="${tasksWaitingForPayment}">
+                <c:set var="hasPendingTasks" value="true"/>
+                <div class="task-item" id="task-${task.taskId}">
+                    <div class="task-info">
+                        <h3 class="task-title">${task.title}</h3>
+                        <p>${task.description}</p>
+                        <div class="task-meta">
+                            <span class="meta-item"><i class="fas fa-map-marker-alt"></i> ${task.location}</span>
+                            <span class="meta-item"><i class="fas fa-clock"></i> ${task.scheduledTime}</span>
+                            <span class="meta-item"><i class="fas fa-money-bill-wave"></i> ${task.budget} VND</span>
+                            <span class="meta-item">
+                                <span class="task-status status-completed">COMPLETED_BY_WORKER</span>
+                            </span>
+                        </div>
+                        <div class="task-actions">
+                            <!-- Thay đổi từ link sang form -->
+                            <form action="${pageContext.request.contextPath}/confirmCompletion" 
+                                  method="post" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xác nhận thanh toán không?');">
+                                <input type="hidden" name="taskId" value="${task.taskId}">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> Xác nhận và thanh toán
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
+            <c:if test="${!hasPendingTasks}">
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Không có công việc nào cần xác nhận</h3>
+                    <p>Hiện tại không có công việc nào được worker xác nhận hoàn thành.</p>
+                </div>
+            </c:if>
+        </div>
+    </div>
 </main>
-
-<footer class="footer">
-    <p>© 2023 JobLinks. All rights reserved.</p>
-</footer>
+<%@include file="jobPosterFooter.jsp" %>
 </body>
 </html>

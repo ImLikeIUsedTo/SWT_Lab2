@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,6 +10,7 @@
     <!-- Font Awesome CSS for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Original styles from availableTask.jsp */
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,20 +25,168 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        .table-responsive {
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
             margin-top: 20px;
         }
-        .table {
-            border-radius: 10px;
+        .task-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            position: relative;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+            flex: 1;
+            margin-right: 10px;
+        }
+        .task-budget {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .task-location, .task-category {
+            color: #6c757d;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .task-location i {
+            color: #e74c3c;
+        }
+        .task-category i {
+            color: #3498db;
+        }
+        .task-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .table th, .table td {
-            vertical-align: middle;
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .task-posted {
+            color: #6c757d;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-active {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .pagination .page-link {
+            color: #6e8efb;
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+        }
+        .pagination .page-link:hover {
+            color: #5d7ce0;
+            background-color: #f8f9fa;
+            border-color: #6e8efb;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #6e8efb;
+            border-color: #6e8efb;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+        }
+        .bookmark-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            border: none;
+            background: transparent;
+            font-size: 1.2rem;
+            color: #dee2e6;
+            transition: color 0.3s ease;
+            padding: 5px;
+        }
+        .bookmark-btn:hover {
+            color: #dc3545;
+        }
+        .bookmark-btn.bookmarked {
+            color: #dc3545;
         }
         .btn-primary {
             background-color: #6e8efb;
             border: none;
             transition: background-color 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
         }
         .btn-primary:hover {
             background-color: #5d7ce0;
@@ -58,141 +208,514 @@
             color: #5d7ce0;
             text-decoration: underline;
         }
-        .back {
-            padding: 10px 20px;
-            background: #483C4F;
+        /* Header Styles */
+        .header {
+            background: linear-gradient(90deg, #007bff, #00c4ff);
             color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .back:hover {
-            background: #5a4d66; /* Thay đổi màu hover để tạo hiệu ứng */
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
-        .nav {
-            margin-bottom: 20px;
-        }
-        .user-greeting {
-            margin-right: 15px;
+        .header-logo {
+            font-size: 1.8rem;
             font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+        .header-nav {
+            display: flex;
+            gap: 20px;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+        .header-nav a:hover {
+            opacity: 0.8;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-user-greeting {
+            font-weight: bold;
+        }
+        .header-user-balance {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .header-btn-login {
+            background-color: #28a745;
+        }
+        .header-btn-login:hover {
+            background-color: #218838;
+        }
+        .header-btn-register {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .header-btn-register:hover {
+            background-color: #e0a800;
+        }
+        .header-btn-logout {
+            background-color: #dc3545;
+        }
+        .header-btn-logout:hover {
+            background-color: #c82333;
+        }
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+            color: #333;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+        .footer-section p, .footer-section li {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            color: #007bff;
+        }
+        .footer-social a {
+            color: #333;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+        }
+        .footer-social a:hover {
+            color: #007bff;
+        }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #90caf9;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            display: none;
+            transition: background-color 0.3s ease;
+        }
+        .back-to-top:hover {
+            background-color: #0056b3;
+        }
+        .back-to-top.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- Nút quay lại -->
-    <button onclick="window.history.back()" class="back">
-        <i class="fas fa-arrow-left"></i>← Quay lại
-    </button>
-    <!-- Navigation động -->
-    <div class="nav">
-        <!-- Hiển thị lời chào người dùng, kiểm tra userName để tránh lỗi -->
-        <span class="user-greeting">Xin chào, <%= (request.getAttribute("userName") != null ? request.getAttribute("userName") : "Khách") %></span>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="${pageContext.request.contextPath}/home" class="header-logo">
+                JobLinks
+            </a>
+            <nav class="header-nav">
+                <c:choose>
+                    <c:when test="${requestScope.currentPage == 'available'}">
+                        <a href="${pageContext.request.contextPath}/tasks?action=applied"><i class="fas fa-list"></i> My Applications</a>
+                        <a href="${pageContext.request.contextPath}/acceptedTasks"><i class="fas fa-check"></i> Công việc đã nhận</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/tasks"><i class="fas fa-tasks"></i> Danh sách công việc</a>
+                        <a href="${pageContext.request.contextPath}/acceptedTasks"><i class="fas fa-check"></i> Công việc đã nhận</a>
+                    </c:otherwise>
+                </c:choose>
+                <a href="${pageContext.request.contextPath}/DepositServlet"><i class="fas fa-wallet"></i> Nạp tiền</a>
+                <a href="${pageContext.request.contextPath}/boostTask"><i class="fas fa-rocket"></i> Quản Lý Boost Task</a>
+            </nav>
+            <div class="header-user">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <span class="header-user-greeting">Xin chào, <c:out value="${userName}" default="Khách"/></span>
+                        <span class="header-user-balance">
+                            Số dư: <fmt:formatNumber value="${userBalance}" type="currency" currencyCode="VND"/>
+                        </span>
+                        <a href="${pageContext.request.contextPath}/logout" class="header-btn header-btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="login.jsp" class="header-btn header-btn-login">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                        </a>
+                        <a href="register.jsp" class="header-btn header-btn-register">
+                            <i class="fas fa-user-plus"></i> Đăng ký
+                        </a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Page Title -->
+        <h1>${requestScope.pageTitle}</h1>
+
+        <!-- Error/Success Messages -->
+        <c:if test="${not empty error}">
+            <div class="alert alert-danger">${error}</div>
+            <c:remove var="error" scope="request"/>
+        </c:if>
+        <c:if test="${not empty success}">
+            <div class="alert alert-success">${success}</div>
+            <c:remove var="success" scope="request"/>
+        </c:if>
+
+        <!-- Search/Filter Bar -->
+        <c:if test="${currentPage == 'available'}">
+            <div class="search-bar card">
+                <form action="${pageContext.request.contextPath}/tasks?action=list" method="get" class="row g-3 filter-form">
+                    <input type="hidden" name="action" value="list"/>
+                    <input type="hidden" name="page" value="1"/>
+                    <div class="col-md-3">
+                        <label for="searchKeyword" class="form-label">Từ khóa</label>
+                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" value="${searchKeyword}" placeholder="Tìm kiếm công việc...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="location" class="form-label">Địa điểm</label>
+                        <select class="form-select" id="location" name="location">
+                            <option value="">Tất cả địa điểm</option>
+                            <option value="Hanoi" ${location == 'Hanoi' ? 'selected' : ''}>Hà Nội</option>
+                            <option value="HCMC" ${location == 'HCMC' ? 'selected' : ''}>Hồ Chí Minh</option>
+                            <option value="DaNang" ${location == 'Danang' ? 'selected' : ''}>Đà Nẵng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="budgetRange" class="form-label">Ngân sách (VND)</label>
+                        <div class="slider-container">
+                            <input type="range" id="budgetMin" name="budgetMin" min="10000" max="10000000" step="1000"
+                                   value="${not empty budgetMin ? budgetMin : 10000}" oninput="updateBudgetRange()">
+                            <input type="range" id="budgetMax" name="budgetMax" min="10000" max="10000000" step="1000"
+                                   value="${not empty budgetMax ? budgetMax : 10000000}" oninput="updateBudgetRange()">
+                            <span id="budgetRangeValue">Từ <fmt:formatNumber value="${not empty budgetMin ? budgetMin : 10000}" type="number" groupingUsed="true"/> đến <fmt:formatNumber value="${not empty budgetMax ? budgetMax : 10000000}" type="number" groupingUsed="true"/> VND</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="categoryId" class="form-label">Danh mục</label>
+                        <select class="form-select" id="categoryId" name="categoryId">
+                            <option value="">Tất cả danh mục</option>
+                            <c:forEach var="category" items="${categories}">
+                                <option value="${category.categoryId}" ${categoryId == category.categoryId ? 'selected' : ''}>
+                                    ${category.name}
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="col-md-1 align-self-end">
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-filter"></i> Tìm kiếm
+                        </button>
+                        <button type="button" class="btn btn-secondary w-100" onclick="resetForm()">Reset</button>
+                    </div>
+                </form>
+            </div>
+            <a href="${pageContext.request.contextPath}/boostTask" class="link-custom">Quản Lý Boost Task</a>
+        </c:if>
+
+        <!-- Tasks Display -->
         <c:choose>
-            <c:when test="${requestScope.currentPage == 'available'}">
-                <a href="${pageContext.request.contextPath}/tasks?action=applied" class="link-custom">My Applications</a>
+            <c:when test="${empty tasks}">
+                <div class="empty-state">
+                    <i class="fas fa-briefcase"></i>
+                    <p>Hiện không có công việc nào phù hợp</p>
+                    <a href="${pageContext.request.contextPath}/tasks" class="btn btn-primary">Khám phá công việc</a>
+                </div>
             </c:when>
             <c:otherwise>
-                <a href="${pageContext.request.contextPath}/tasks" class="link-custom">Available Tasks</a>
+                <div class="tasks-grid">
+                    <c:forEach var="task" items="${tasks}">
+                        <div class="task-card">
+                            <button type="button" class="bookmark-btn ${bookmarkedTaskIds.contains(task.taskId) ? 'bookmarked' : ''}" 
+                                    onclick="toggleBookmark(${task.taskId}, this)">
+                                <i class="${bookmarkedTaskIds.contains(task.taskId) ? 'fas fa-heart' : 'far fa-heart'}"></i>
+                            </button>
+                            <div class="task-header">
+                                <h3 class="task-title">${task.title}</h3>
+                                <span class="task-budget">
+                                    <fmt:formatNumber value="${task.budget}" type="currency" currencyCode="VND"/>
+                                </span>
+                            </div>
+                            <div class="task-meta">
+                                <span class="task-location">
+                                    <i class="fas fa-map-marker-alt"></i> ${task.location}
+                                </span>
+                                <span class="task-category">
+                                    <i class="fas fa-tag"></i> ${task.categoryName != null ? task.categoryName : 'Chung'}
+                                </span>
+                                <span class="task-status status-${task.status.toLowerCase()}">
+                                    ${task.status}
+                                </span>
+                            </div>
+                            <p class="task-description">
+                                <c:choose>
+                                    <c:when test="${not empty task.description}">
+                                        ${task.description}
+                                    </c:when>
+                                    <c:otherwise>
+                                        Mô tả công việc sẽ được cập nhật sớm...
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
+                            <div class="task-footer">
+                                <a href="${pageContext.request.contextPath}/tasks?action=details&taskId=${task.taskId}" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                </a>
+                                <span class="task-posted">
+                                    <i class="far fa-clock"></i> 
+                                    <c:choose>
+                                        <c:when test="${not empty task.createdAt}">
+                                            ${task.createdAt}
+                                        </c:when>
+                                        <c:otherwise>
+                                            Ngày đăng không khả dụng
+                                        </c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+                <!-- Pagination -->
+                <c:if test="${totalPages > 1}">
+                    <div class="pagination-wrapper">
+                        <nav aria-label="Task pagination">
+                            <ul class="pagination">
+                                <c:if test="${currentPageNum > 1}">
+                                    <li class="page-item">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/tasks?action=list&page=${currentPageNum - 1}&searchKeyword=${searchKeyword}&location=${location}&budgetMin=${budgetMin}&budgetMax=${budgetMax}&categoryId=${categoryId}">
+                                            <i class="fas fa-chevron-left"></i> Trước
+                                        </a>
+                                    </li>
+                                </c:if>
+                                <c:forEach var="i" begin="1" end="${totalPages}">
+                                    <c:choose>
+                                        <c:when test="${i == currentPageNum}">
+                                            <li class="page-item active">
+                                                <span class="page-link">${i}</span>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li class="page-item">
+                                                <a class="page-link" href="${pageContext.request.contextPath}/tasks?action=list&page=${i}&searchKeyword=${searchKeyword}&location=${location}&budgetMin=${budgetMin}&budgetMax=${budgetMax}&categoryId=${categoryId}">
+                                                    ${i}
+                                                </a>
+                                            </li>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+                                <c:if test="${currentPageNum < totalPages}">
+                                    <li class="page-item">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/tasks?action=list&page=${currentPageNum + 1}&searchKeyword=${searchKeyword}&location=${location}&budgetMin=${budgetMin}&budgetMax=${budgetMax}&categoryId=${categoryId}">
+                                            Sau <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </c:if>
+                            </ul>
+                        </nav>
+                    </div>
+                </c:if>
             </c:otherwise>
         </c:choose>
     </div>
 
-    <!-- Tiêu đề trang -->
-    <h1>${requestScope.pageTitle}</h1>
-
-    <!-- Thông báo lỗi/thành công -->
-    <c:if test="${not empty error}">
-        <div class="alert alert-danger">${error}</div>
-        <c:remove var="error" scope="request"/>
-    </c:if>
-    <c:if test="${not empty success}">
-        <div class="alert alert-success">${success}</div>
-        <c:remove var="success" scope="request"/>
-    </c:if>
-
-    <!-- Thanh tìm kiếm -->
-    <c:if test="${currentPage == 'available'}">
-        <div class="search-bar">
-            <form action="${pageContext.request.contextPath}/tasks?action=list" method="get" class="row g-3">
-                <input type="hidden" name="action" value="list"/>
-                <div class="col-md-4">
-                    <label for="searchKeyword" class="form-label">Từ khóa</label>
-                    <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" value="${searchKeyword}" placeholder="Nhập từ khóa...">
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>JobLinks</h3>
+                <p>Kết nối công việc, xây dựng tương lai. Tìm kiếm và ứng tuyển công việc dễ dàng với JobLinks.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết</h3>
+                <ul class="footer-links">
+                    <li><a href="${pageContext.request.contextPath}/home">Trang chủ</a></li>
+                    <li><a href="${pageContext.request.contextPath}/tasks">Công việc</a></li>
+                    <li><a href="about.jsp">Về chúng tôi</a></li>
+                    <li><a href="help.jsp">Hỗ trợ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-envelope"></i> support@joblinks.vn</li>
+                    <li><i class="fas fa-phone"></i> (+84) 987 654 321</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Hà Nội, Việt Nam</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Kết nối với chúng tôi</h3>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
-                <div class="col-md-3">
-                    <label for="location" class="form-label">Vị trí</label>
-                    <input type="text" class="form-control" id="location" name="location" value="${location}" placeholder="Nhập vị trí...">
-                </div>
-                <div class="col-md-2">
-                    <label for="budget" class="form-label">Ngân sách tối đa</label>
-                    <input type="number" class="form-control" id="budget" name="budget" value="${budget}" min="0" placeholder="VD: 500">
-                </div>
-                <div class="col-md-2">
-                    <label for="categoryId" class="form-label">Danh mục</label>
-                    <select class="form-select" id="categoryId" name="categoryId">
-                        <option value="">Tất cả</option>
-                        <c:forEach var="category" items="${categories}">
-                            <option value="${category.categoryId}" ${categoryId == category.categoryId ? 'selected' : ''}>
-                                ${category.name}
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div class="col-md-1 align-self-end">
-                    <button type="submit" class="btn btn-primary w-100 mb-2">Tìm kiếm</button>
-                    <button type="button" class="btn btn-secondary w-100" onclick="resetForm()">Reset</button>
-                </div>
-            </form>
+            </div>
         </div>
-        <a href="${pageContext.request.contextPath}/boostTask" class="link-custom">Quản Lý Boost Task</a>
-    </c:if>
+        <div class="footer-bottom">
+            <p>© 2025 JobLinks. All rights reserved.</p>
+        </div>
+    </footer>
 
-    <!-- Bảng công việc -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tiêu đề</th>
-                    <th>Vị trí</th>
-                    <th>Ngân sách</th>
-                    <th>Thời gian tạo</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="task" items="${tasks}">
-                    <tr>
-                        <td>${task.title}</td>
-                        <td>${task.location}</td>
-                        <td>${task.budget} VND</td>
-                        <td>${task.createdAt}</td>
-                        <td>${task.status}</td>
-                        <td>
-                            <a href="${pageContext.request.contextPath}/tasks?action=details&taskId=${task.taskId}" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-    </div>
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
 
-    <c:if test="${empty tasks}">
-        <p class="text-center mt-3">Không có công việc nào khả dụng.</p>
-    </c:if>
-</div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Back to top button
+        window.addEventListener('scroll', function() {
+            var backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        document.getElementById('backToTop').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function resetForm() {
-        document.getElementById("searchKeyword").value = "";
-        document.getElementById("location").value = "";
-        document.getElementById("budget").value = "";
-        document.getElementById("categoryId").value = "";
-        document.querySelector("form").submit();
-    }
-</script>
+        function updateBudgetRange() {
+            var min = document.getElementById('budgetMin').value;
+            var max = document.getElementById('budgetMax').value;
+            if (parseInt(min) > parseInt(max)) {
+                document.getElementById('budgetMin').value = max;
+                min = max;
+            }
+            document.getElementById('budgetRangeValue').innerHTML = 
+                'Từ ' + Number(min).toLocaleString('vi-VN') + ' đến ' + Number(max).toLocaleString('vi-VN') + ' VND';
+        }
+
+        function resetForm() {
+            document.getElementById("searchKeyword").value = "";
+            document.getElementById("location").value = "";
+            document.getElementById("budgetMin").value = "10000";
+            document.getElementById("budgetMax").value = "10000000";
+            document.getElementById("categoryId").value = "";
+            updateBudgetRange();
+            document.querySelector("form").submit();
+        }
+
+        function toggleBookmark(taskId, btn) {
+            const userId = '<c:out value="${sessionScope.userId}" default="null"/>';
+            if (userId === 'null' || !userId) {
+                alert("Vui lòng đăng nhập để sử dụng chức năng này.");
+                return;
+            }
+            console.log("Toggle Bookmark - taskId:", taskId, "userId:", userId);
+            const isBookmarked = btn.classList.contains('bookmarked');
+            const action = isBookmarked ? 'unbookmark' : 'bookmark';
+            fetch('${pageContext.request.contextPath}/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=' + encodeURIComponent(action) + '&taskId=' + encodeURIComponent(taskId) + '&userId=' + encodeURIComponent(userId)
+            })
+            .then(response => {
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Response data:", data);
+                if (data.success) {
+                    btn.classList.toggle('bookmarked');
+                    const icon = btn.querySelector('i');
+                    if (isBookmarked) {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    } else {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    }
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification('Thao tác thất bại: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                showNotification('Đã xảy ra lỗi khi thực hiện thao tác.', 'error');
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger') + ' position-fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '9999';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            updateBudgetRange();
+        });
+    </script>
 </body>
 </html>
